@@ -39,9 +39,9 @@ class MantisController
     }
 
     // Use to send api response with some default data
-    static function api($result)
+    static function api($result, $status = 200, $headers = [])
     {
-        return response()->json($result + ["timestamp" => time()]);
+        return response()->json($result + ["timestamp" => time()], $status, $headers);
     }
 
     static function store($path)

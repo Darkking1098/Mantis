@@ -5,8 +5,10 @@ namespace Mantis\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
-use Mantis\Controllers\AdminControllers\WebPageController as URL;
-use Mantis\Controllers\AdminControllers\WebUriController as URI;
+use Mantis\Controllers\AdminControllers\{
+    WebPageController as URL,
+    WebUriController as URI
+};
 use Symfony\Component\HttpFoundation\Response;
 
 class UriTrackMid

@@ -36,13 +36,13 @@ class JWT extends Token
     }
     static function validate($token)
     {
-        if (!$token) return ["success" => false, 'msg' => "Token is invalid"];
+        if (!$token) return ["isValid" => false, 'msg' => "Token is invalid"];
         list($header, $payload, $signature) = explode('.', $token);
 
         $expectedSignature = HMAC::encode($header . "." . $payload);
 
         if ($expectedSignature !== $signature) {
-            return ["success" => false, 'msg' => "Token is invalid"];
+            return ["isValid" => false, 'msg' => "Token is invalid"];
         }
 
         $dec = json_decode(self::decode($payload), true);

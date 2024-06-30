@@ -6,8 +6,9 @@ use Closure;
 use Illuminate\Http\Request;
 use Mantis\Controllers\MantisController;
 use Mantis\Helpers\Security\Token\JWT;
+use Mantis\Models\Employee;
 
-class ApiAuthMid
+class AdminApiMid
 {
     public function handle(Request $request, Closure $next)
     {
@@ -21,15 +22,15 @@ class ApiAuthMid
             return MantisController::api(MantisController::error("Invalid Token used !!!"), 498);
         }
 
-        $user = User::where('login_token', $request->userdata['token'])->first();
+        $employee = Employee::where('login_token', $data['data']['token'])->first();
 
-        if (!$user)
+        if (!$employee)
             return MantisController::api(MantisController::error("Invalid Credentials !!!"));
 
-        if (!$user->user_status)
+        if (!$employee->status)
             return MantisController::api(MantisController::error("Account has been disabled !!!"));
 
-        $request->merge(["userdata" => $data['data']]);
+        $request->merge(["admin" => $employee]);
 
         return $next($request);
     }

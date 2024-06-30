@@ -2,20 +2,27 @@
 
 namespace Mantis;
 
+use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Mantis\Helpers\fs;
+use Mantis\Middleware\AdminAjaxMid;
+use Mantis\Middleware\AdminApiMid;
+use Mantis\Middleware\AdminAuthMid;
+use Mantis\Middleware\UriTrackMid;
+use Mantis\Middleware\UserAjaxMid;
+use Mantis\Middleware\UserApiMid;
+use Mantis\Middleware\UserAuthMid;
 
 class MantisServiceProvider extends ServiceProvider
 {
     protected $public = [];
 
     protected $mids = [
-        "web" => [],
-        "web-auth" => [],
-        "api" => [],
-        "admin" => [],
-        "admin-api" => [],
+        "web" => [UriTrackMid::class, UserAuthMid::class],
+        "api" => [UserApiMid::class],
+        "admin" => [AdminAuthMid::class],
+        "admin-api" => [AdminApiMid::class],
     ];
 
     public function register()
@@ -74,6 +81,14 @@ class MantisServiceProvider extends ServiceProvider
 
     private function boot_middlewares()
     {
+        $web = app()->router->getMiddlewareGroups()['web'];
+        $this->mids['web'] = [...$web, ...$this->mids['web']];
+        $this->mids['admin'] = [...$web, ...$this->mids['admin']];
+
+        $api = app()->router->getMiddlewareGroups()['api'];
+        $this->mids['api'] = [...$api, ...$this->mids['api']];
+        $this->mids['admin-api'] = [...$api, ...$this->mids['admin-api']];
+        
         foreach ($this->mids as $group => $middleware) {
             if ($group === 'web' || $group === 'api') {
                 foreach ($middleware as $mid) {
@@ -92,16 +107,37 @@ class MantisServiceProvider extends ServiceProvider
         fs::create_file($route);
         Route::middleware('web')->group($route);
 
-        // Admin routes
-        $route = __DIR__ . '/routes/admin.php';
+        // Web routes
+        $route = __DIR__ . '/routes/ajax.php';
         fs::create_file($route);
-        Route::middleware(['web', 'admin'])
-            ->prefix('admin')->name('admin.')
-            ->group($route);
+        Route::middleware(['web', UserAjaxMid::class])->withoutMiddleware([UriTrackMid::class, VerifyCsrfToken::class])->prefix('ajax')->group($route);
 
         // Api routes
         $route = __DIR__ . '/routes/api.php';
         fs::create_file($route);
         Route::middleware('api')->name('api')->prefix('api')->group($route);
+
+        // Admin routes
+        $route = __DIR__ . '/routes/admin.php';
+        fs::create_file($route);
+        Route::middleware(['admin'])
+            ->withoutMiddleware([UriTrackMid::class])
+            ->prefix('admin')->name('admin.')
+            ->group($route);
+
+        // Admin routes
+        $route = __DIR__ . '/routes/admin-ajax.php';
+        fs::create_file($route);
+        Route::middleware(['admin', AdminAjaxMid::class])
+            ->withoutMiddleware([UriTrackMid::class, VerifyCsrfToken::class])
+            ->prefix('ajax/admin')->name('ajax.admin.')
+            ->group($route);
+
+        // Admin routes
+        $route = __DIR__ . '/routes/admin-api.php';
+        fs::create_file($route);
+        Route::middleware('admin-api')
+            ->prefix('ajax/admin')->name('ajax.admin.')
+            ->group($route);
     }
 }

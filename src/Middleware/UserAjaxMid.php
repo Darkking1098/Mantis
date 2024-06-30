@@ -10,8 +10,8 @@ class UserAjaxMid
 {
     public function handle(Request $request, Closure $next)
     {
-        if(!session('userId')){
-            return MantisController::api(MantisController::AVOID_GUEST);
+        if (!$request->isLogged) {
+            return MantisController::api(MantisController::AVOID_GUEST, 401);
         }
         return $next($request);
     }
