@@ -28,16 +28,18 @@
                             <td>{{ $emp['role']['title'] }}</td>
                             <td>{{ $emp['salary'] ?? 0 }}</td>
                             <td class="actions">
-                                @include('Mantis::admin.assets.options.toggle_status', [
-                                    'url' => route('admin.employee.toggle', ['employee' => $emp['id']]),
-                                ])
-                                @include('Mantis::admin.assets.options.update', [
-                                    'url' => route('admin.employee.update', ['employee' => $emp['id']]),
-                                ])
-                                @include('Mantis::admin.assets.options.delete', [
-                                    'url' => route('admin.employee.delete', ['employee' => $emp['id']]),
-                                ])
-                                @include('Mantis::admin.assets.options.show_extra')
+                                <i class="icon fa-solid fa-list-ul menu_btn">
+                                    <menu> @include('Mantis::admin.assets.options.toggle_status', [
+                                        'url' => route('ajax.admin.employee.toggle', $emp['id']),
+                                    ])
+                                        @include('Mantis::admin.assets.options.update', [
+                                            'url' => route('admin.employee.update', $emp['id']),
+                                        ])
+                                        @include('Mantis::admin.assets.options.delete', [
+                                            'url' => route('ajax.admin.employee.delete', $emp['id']),
+                                        ])
+                                    </menu>
+                                </i>
                             </td>
                         </tr>
                     @endforeach

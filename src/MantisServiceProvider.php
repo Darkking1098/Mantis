@@ -21,7 +21,8 @@ class MantisServiceProvider extends ServiceProvider
     protected $mids = [
         "web" => [UriTrackMid::class, UserAuthMid::class],
         "api" => [UserApiMid::class],
-        "admin" => [AdminAuthMid::class],
+        "admin" => [UriTrackMid::class],
+        "admin-auth" => [AdminAuthMid::class],
         "admin-api" => [AdminApiMid::class],
     ];
 
@@ -88,7 +89,7 @@ class MantisServiceProvider extends ServiceProvider
         $api = app()->router->getMiddlewareGroups()['api'];
         $this->mids['api'] = [...$api, ...$this->mids['api']];
         $this->mids['admin-api'] = [...$api, ...$this->mids['admin-api']];
-        
+
         foreach ($this->mids as $group => $middleware) {
             if ($group === 'web' || $group === 'api') {
                 foreach ($middleware as $mid) {
@@ -120,15 +121,14 @@ class MantisServiceProvider extends ServiceProvider
         // Admin routes
         $route = __DIR__ . '/routes/admin.php';
         fs::create_file($route);
-        Route::middleware(['admin'])
-            ->withoutMiddleware([UriTrackMid::class])
+        Route::middleware(['admin', 'admin-auth'])
             ->prefix('admin')->name('admin.')
             ->group($route);
 
         // Admin routes
         $route = __DIR__ . '/routes/admin-ajax.php';
         fs::create_file($route);
-        Route::middleware(['admin', AdminAjaxMid::class])
+        Route::middleware(['admin', 'admin-auth', AdminAjaxMid::class])
             ->withoutMiddleware([UriTrackMid::class, VerifyCsrfToken::class])
             ->prefix('ajax/admin')->name('ajax.admin.')
             ->group($route);

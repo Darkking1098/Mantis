@@ -26,10 +26,19 @@
                             </td>
                             <td>{{ $uri['state'] }}</td>
                             <td class="actions">
-                                @include('Mantis::admin.assets.options.toggle_status', ['url' => route('admin.weburi.toggle', ["weburi" => $uri['id']])])
-                                @include('Mantis::admin.assets.options.update', ['url' => route('admin.weburi.update', ["weburi" => $uri['id']])])
-                                @include('Mantis::admin.assets.options.delete', ['url' => route('admin.weburi.delete', ["weburi" => $uri['id']])])
-                                @include('Mantis::admin.assets.options.show_extra')
+                                <i class="icon fa-solid fa-list-ul menu_btn">
+                                    <menu>
+                                        @include('Mantis::admin.assets.options.toggle_status', [
+                                            'url' => route('ajax.admin.weburi.toggle', $uri['id']),
+                                        ])
+                                        @include('Mantis::admin.assets.options.update', [
+                                            'url' => route('admin.weburi.update', $uri['id']),
+                                        ])
+                                        @include('Mantis::admin.assets.options.delete', [
+                                            'url' => route('ajax.admin.weburi.delete', $uri['id']),
+                                        ])
+                                    </menu>
+                                </i>
                             </td>
                         </tr>
                     @endforeach

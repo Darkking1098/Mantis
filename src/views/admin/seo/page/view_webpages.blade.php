@@ -29,13 +29,13 @@
                                 <i class="icon fa-solid fa-list-ul menu_btn">
                                     <menu>
                                         @include('Mantis::admin.assets.options.toggle_status', [
-                                            'url' => route('admin.webpage.toggle', ['webpage' => $page['id']]),
+                                            'url' => route('ajax.admin.webpage.toggle', $page['id']),
                                         ])
                                         @include('Mantis::admin.assets.options.update', [
-                                            'url' => route('admin.webpage.update', ['webpage' => $page['id']]),
+                                            'url' => route('admin.webpage.update', $page['id']),
                                         ])
                                         @include('Mantis::admin.assets.options.delete', [
-                                            'url' => route('admin.webpage.delete', ['webpage' => $page['id']]),
+                                            'url' => route('ajax.admin.webpage.delete', $page['id']),
                                         ])
                                     </menu>
                                 </i>

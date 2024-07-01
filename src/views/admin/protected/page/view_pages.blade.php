@@ -33,16 +33,19 @@
                             </td>
                             <td>{{ $page['uri'] }}</td>
                             <td class="actions">
-                                @include('Mantis::admin.assets.options.toggle_status', [
-                                    'url' => route('admin.protected.page.toggle', ['page' => $page['id']]),
-                                ])
-                                @include('Mantis::admin.assets.options.update', [
-                                    'url' => route('admin.protected.page.update', ['page' => $page['id']]),
-                                ])
-                                @include('Mantis::admin.assets.options.delete', [
-                                    'url' => route('admin.protected.page.delete', ['page' => $page['id']]),
-                                ])
-                                @include('Mantis::admin.assets.options.show_extra')
+                                <i class="icon fa-solid fa-list-ul menu_btn">
+                                    <menu>
+                                        @include('Mantis::admin.assets.options.toggle_status', [
+                                            'url' => route('ajax.admin.protected.page.toggle', $page['id']),
+                                        ])
+                                        @include('Mantis::admin.assets.options.update', [
+                                            'url' => route('admin.protected.page.update', $page['id']),
+                                        ])
+                                        @include('Mantis::admin.assets.options.delete', [
+                                            'url' => route('ajax.admin.protected.page.delete', $page['id']),
+                                        ])
+                                    </menu>
+                                </i>
                             </td>
                         </tr>
                     @endforeach
