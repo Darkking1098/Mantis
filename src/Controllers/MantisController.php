@@ -7,28 +7,30 @@ use Mantis\Helpers\fs;
 
 class MantisController
 {
-    const SERVER_ERROR = ["msg" => "Some server issue. Contact Developer !!!", "code" => 500, "response_code" => "SERVER_ERROR"];
-    const AVOID_GUEST = ["msg" => "You are not logged in !!!", "code" => 400, "response_code" => "AVOID_GUEST"];
+    const SERVER_ERROR = ["msg" => "Some server issue. Contact Developer !!!", "status" => 500, "response_code" => "SERVER_ERROR"];
+    const AVOID_GUEST = ["msg" => "You are not logged in !!!", "status" => 403, "response_code" => "AVOID_GUEST"];
 
     protected const STORE = 'images/';
 
     protected const MODEL = '';
 
-    static function random($len)
+    static function random($len, $prefix = null, $time = false)
     {
+        if ($time) $prefix .= time();
+        if ($prefix) $len -= strlen($prefix);
         return Str::random($len ?? 10);
     }
 
     // Error Response
-    static function error($response)
+    static function error($response, $extra = [])
     {
-        return ['success' => false] + (is_array($response) ? $response : ['msg' => $response]);
+        return ['success' => false] + (is_array($response) ? $response : ['msg' => $response]) + (is_array($extra) ? $extra : ["status" => $extra]);
     }
 
     // Success response
-    static function success($response)
+    static function success($response, $extra = [])
     {
-        return ['success' => true] + (is_array($response) ? $response : ['msg' => $response]);
+        return ['success' => true] + (is_array($response) ? $response : ['msg' => $response]) + (is_array($extra) ? $extra : ["status" => $extra]);
     }
 
     // Use to send web response
@@ -41,7 +43,10 @@ class MantisController
     // Use to send api response with some default data
     static function api($result, $status = 200, $headers = [])
     {
-        return response()->json($result + ["timestamp" => time()], $status, $headers);
+        $status = $result['status'] ?? $status;
+        $headers = $result['headers'] ?? $headers;
+        unset($result['status'], $result['headers']);
+        return response()->json($result + ["timestamp" => time()],  $status, $headers);
     }
 
     static function store($path)

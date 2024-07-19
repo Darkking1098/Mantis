@@ -12,13 +12,13 @@ class AuthController extends MantisController
     function login($username, $password)
     {
         if (!($employee = Employee::where('username', $username)->first()))
-            return self::error("Invalid Credentials");
+            return self::error("Invalid Credentials", 401);
         if (!$employee->status) {
-            return self::error("Contact HR.");
+            return self::error("Contact HR.", 403);
         } else if (OPENSSL::verify($employee->password, $password)) {
             return self::success(["adminId" => $employee->id]);
         }
-        return self::error("Invalid Credentials");
+        return self::error("Invalid Credentials", 401);
     }
 
     function ui_login()
