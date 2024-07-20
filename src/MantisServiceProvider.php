@@ -6,13 +6,14 @@ use App\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Mantis\Helpers\fs;
-use Mantis\Middleware\AdminAjaxMid;
-use Mantis\Middleware\AdminApiMid;
-use Mantis\Middleware\AdminAuthMid;
-use Mantis\Middleware\UriTrackMid;
-use Mantis\Middleware\UserAjaxMid;
-use Mantis\Middleware\UserApiMid;
-use Mantis\Middleware\UserAuthMid;
+use Mantis\Middleware\{
+    AdminAjaxMid,
+    ApiMid,
+    AdminAuthMid,
+    UriTrackMid,
+    UserAjaxMid,
+    UserAuthMid,
+};
 
 class MantisServiceProvider extends ServiceProvider
 {
@@ -20,10 +21,9 @@ class MantisServiceProvider extends ServiceProvider
 
     protected $mids = [
         "web" => [UriTrackMid::class, UserAuthMid::class],
-        "api" => [UserApiMid::class],
+        "api" => [ApiMid::class],
         "admin" => [UriTrackMid::class],
         "admin-auth" => [AdminAuthMid::class],
-        "admin-api" => [AdminApiMid::class],
     ];
 
     public function register()
@@ -36,7 +36,7 @@ class MantisServiceProvider extends ServiceProvider
         include_once __DIR__ . "/Helpers/helper.php";
 
         // Public assets
-        $this->public[__DIR__ . '/public'] =  public_path('Mantis');
+        $this->public[__DIR__ . '/public'] =  public_path('mantis');
 
         // Loading migratins
         $this->loadMigrationsFrom(__DIR__ . "/database/migrations");
@@ -88,16 +88,9 @@ class MantisServiceProvider extends ServiceProvider
 
         $api = app()->router->getMiddlewareGroups()['api'];
         $this->mids['api'] = [...$api, ...$this->mids['api']];
-        $this->mids['admin-api'] = [...$api, ...$this->mids['admin-api']];
 
         foreach ($this->mids as $group => $middleware) {
-            if ($group === 'web' || $group === 'api') {
-                foreach ($middleware as $mid) {
-                    $this->app['router']->pushMiddlewareToGroup($group, $mid);
-                }
-            } else {
-                $this->app['router']->middlewareGroup($group, $middleware);
-            }
+            $this->app['router']->middlewareGroup($group, $middleware);
         }
     }
 

@@ -9,7 +9,7 @@ use Mantis\Helpers\Security\Token\JWT;
 use Mantis\Models\Employee;
 use Mantis\User\Models\User;
 
-class UserApiMid
+class ApiMid
 {
     public function handle(Request $request, Closure $next)
     {
