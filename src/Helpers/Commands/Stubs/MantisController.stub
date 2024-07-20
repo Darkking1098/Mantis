@@ -1,0 +1,142 @@
+<?php
+
+namespace App\Http\Controllers\UserControllers;
+
+use Illuminate\Http\Request;
+use Mantis\Controllers\MantisController;
+
+class {{class}} extends MantisController
+{
+    protected const MODEL = Item::class;
+
+    private const STATUS = [
+        ["msg" => "Item is now disabled !!!", "item_status" => "DISABLED"],
+        ["msg" => "Item is now active !!!", "item_status" => "ACTIVE"]
+    ];
+
+    private const NOT_EXISTS = "Item does not exist !!!";
+    private const EXISTS = "Item already exists !!!";
+    private const CREATED = "Item has been created !!!";
+    private const UPDATED = "Item has been updated !!!";
+    private const DELETED = "Item has been deleted !!!";
+
+    // Base View Path
+    private const VIEW = "{{view}}";
+
+    static function getItem($id)
+    {
+        return self::MODEL::find($id);
+    }
+
+    public static function create($params)
+    {
+        try {
+            ${{item}} = new (self::MODEL)($params);
+            ${{item}}->save();
+            return self::success(self::CREATED, ["contact" => self::getItem(${{item}}->id)]);
+        } catch (\Throwable $th) {
+            return self::error(self::SERVER_ERROR + ["error" => $th->getMessage()]);
+        }
+    }
+    public static function update(${{item}}, $params)
+    {
+        if (!${{item}}) return self::error(self::NOT_EXISTS);
+        try {
+            ${{item}}->update($params);
+            return self::success(self::UPDATED, ["contact" => self::getItem(${{item}}->id)]);
+        } catch (\Throwable $th) {
+            return self::error(self::SERVER_ERROR + ["error" => $th->getMessage()]);
+        }
+    }
+    public static function toggle(${{item}})
+    {
+        if (!${{item}}) return self::error(self::NOT_EXISTS);
+        try {
+            ${{item}}->update(["status" => !${{item}}->status]);
+            return self::success(self::STATUS[${{item}}->status]);
+        } catch (\Throwable $th) {
+            return self::error(self::SERVER_ERROR + ["error" => $th->getMessage()]);
+        }
+    }
+    public static function delete(${{item}}, $force)
+    {
+        if (!${{item}}) return self::error(self::NOT_EXISTS);
+        try {
+            ${{item}}->delete();
+            return self::success(static::DELETED, ["contact" => ${{item}}]);
+        } catch (\Throwable $th) {
+            return self::error(self::SERVER_ERROR + ["error" => $th->getMessage()]);
+        }
+    }
+
+    public function ui_view(${{item}} = null)
+    {
+        if (${{item}} && (${{item}} = self::getItem(${{item}})) == null) abort(404);
+        $data = [];
+        if (${{item}}) {
+            $data += ["contact" => self::getItem(${{item}})];
+            return view(self::VIEW . "view_items", $data);
+        } else {
+            $data += ["items" => self::MODEL::with('item_group')->get()->toArray()];
+            return view(self::VIEW . "view_items", $data);
+        }
+    }
+    public function ui_modify(${{item}} = null)
+    {
+        if (${{item}} && (${{item}} = self::getItem(${{item}})) == null) abort(404);
+        $data = [];
+        if (${{item}}) {
+            $data += [];
+        } else {
+            $data += [];
+        }
+        return view(self::VIEW . "modify_item", $data);
+    }
+
+    public function web_modify(Request $request, ${{item}} = null)
+    {
+        if (${{item}} && (${{item}} = self::getItem(${{item}})) == null) abort(404);
+        return self::web(self::base_modify(${{item}}));
+    }
+    public function web_delete(Request $request, ${{item}})
+    {
+        if (${{item}} && (${{item}} = self::getItem(${{item}})) == null) abort(404);
+        return self::web(self::delete(${{item}}, $request->force));
+    }
+    public function web_toggle(${{item}})
+    {
+        if (${{item}} && (${{item}} = self::getItem(${{item}})) == null) abort(404);
+        return self::web(self::toggle(${{item}}));
+    }
+
+    public function api_view(${{item}} = null)
+    {
+        if (${{item}})
+            return self::api(self::success(["contact" => ${{item}}]));
+        $limit = request('limit');
+        $page = request('page');
+        ${{item}}s = self::MODEL::get();
+        return self::api(self::success([
+            "items" => ${{item}}s->skip(($page - 1) * $limit)->take($limit),
+            "has_more" => ${{item}}s->count() > $page * $limit,
+        ]));
+    }
+    public function api_modify(Request $request, ${{item}} = null)
+    {
+        return self::api(self::base_modify(${{item}}));
+    }
+    public function api_delete(Request $request, ${{item}})
+    {
+        return self::api(self::delete(${{item}}, $request->force));
+    }
+    public function api_toggle(${{item}})
+    {
+        return self::api(self::toggle(${{item}}));
+    }
+
+    function base_modify(${{item}}, $params = null)
+    {
+        $params ??= [];
+        return ${{item}} == null ? self::create($params) : self::update(${{item}}, $params);
+    }
+}

@@ -126,7 +126,7 @@ class ProtectedPageController extends MantisController
     }
     function api_modify(Request $request, $page = null)
     {
-        return self::web(self::base_modify($page));
+        return self::api(self::base_modify($page));
     }
     function base_modify($page, $params = null)
     {

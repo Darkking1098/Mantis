@@ -3,8 +3,10 @@
 namespace Mantis;
 
 use App\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Mantis\Helpers\Commands\MantisController;
 use Mantis\Helpers\fs;
 use Mantis\Middleware\{
     AdminAjaxMid,
@@ -19,6 +21,10 @@ class MantisServiceProvider extends ServiceProvider
 {
     protected $public = [];
 
+    protected $commands = [
+        MantisController::class,
+    ];
+
     protected $mids = [
         "web" => [UriTrackMid::class, UserAuthMid::class],
         "api" => [ApiMid::class],
@@ -28,6 +34,9 @@ class MantisServiceProvider extends ServiceProvider
 
     public function register()
     {
+        $this->commands($this->commands);
+
+        $this->loadMacrosFrom(__DIR__ . "/Macro");
     }
 
     public function boot()
@@ -60,6 +69,12 @@ class MantisServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/Helpers/mantis.php' => config_path('mantis.php'),
         ], 'mantis-config');
+    }
+
+    protected function loadMacrosFrom($directory)
+    {
+        $files = File::files($directory);
+        foreach ($files as $file) require_once $file->getPathname();
     }
 
     private function boot_plugins()
