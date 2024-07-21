@@ -6,26 +6,26 @@ Route::macro('MantisWebResource', function ($name, $controller, array $config = 
     $defaultRoutes = [
         'ui_modify' => [
             "create" => ['get', 'create'],
-            "update" => ['get', '{id}/update']
+            "update" => ['get', 'update/{id}']
         ],
         'ui_view' => [
-            "view_all" => ['get', ''],
-            "view" => ['get', '{id}'],
+            "view_all" => ['get', 'view'],
+            "view" => ['get', 'view/{id}'],
         ],
         'web_modify' => [
             "create" => ['post', 'create'],
-            "update" => ['post', '{id}/update'],
-            "update.put" => ['put', '{id}/update'],
-            "update.patch" => ['patch', '{id}/update']
+            "update" => ['post', 'update/{id}'],
+            "update.put" => ['put', 'update/{id}'],
+            "update.patch" => ['patch', 'update/{id}']
         ],
         'web_toggle' => [
-            "toggle" => ['get', '{id}/toggle'],
-            "toggle.put" => ['put', '{id}/toggle'],
-            "toggle.patch" => ['patch', '{id}/toggle'],
+            "toggle" => ['get', 'toggle/{id}'],
+            "toggle.put" => ['put', 'toggle/{id}'],
+            "toggle.patch" => ['patch', 'toggle/{id}'],
         ],
         'web_delete' => [
-            "delete" => ['get', '{id}/delete'],
-            "delete.delete" => ['delete', '{id}/delete'],
+            "delete" => ['get', 'delete/{id}'],
+            "delete.delete" => ['delete', 'delete/{id}'],
         ],
     ];
 
@@ -43,11 +43,7 @@ Route::macro('MantisWebResource', function ($name, $controller, array $config = 
     Route::controller($controller)->prefix($name)->name($config['name'] ?? $name)->group(function () use ($defaultRoutes) {
         foreach ($defaultRoutes as $controllerMethod => $method_config) {
             foreach ($method_config as $routeName => [$method, $uri]) {
-                if (strpos($uri, "{id}") !== false) {
-                    Route::whereNumber('id')->$method($uri, $controllerMethod)->name(".$routeName");
-                } else {
-                    Route::$method($uri, $controllerMethod)->name(".$routeName");
-                }
+                Route::$method($uri, $controllerMethod)->name(".$routeName");
             }
         }
     });
