@@ -33,9 +33,9 @@ class ProtectedPageController extends MantisController
     {
         return self::MODEL::with('page_group')->active()->get()?->toArray();
     }
-    static function getAllowedPages($panel)
+    static function getAllowedPages($panel, $permit = null)
     {
-        return ProtectedPageGroupController::getGroupsWithPages($panel, RoleController::getPermits());
+        return ProtectedPageGroupController::getGroupsWithPages($panel, $permit ?? RoleController::getPermits());
     }
 
     // CRUD Operation
