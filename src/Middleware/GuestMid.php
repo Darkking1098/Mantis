@@ -1,6 +1,6 @@
 <?php
 
-namespace Mantis\User\Middleware;
+namespace Mantis\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
